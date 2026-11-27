@@ -4,7 +4,7 @@ Atelier **Java & Spring Boot** (FRWE518, EPSI), bachelor DevOps Full Stack.
 
 Des stations météo envoient des mesures. Certaines sont erronées (capteur en panne, valeur -999...). L'API les **valide**, les **stocke**, **détecte et supprime les anomalies** et fournit des **statistiques** à un tableau de bord.
 
-**Auteur :** Deniz Sarigul
+**Auteurs :** Deniz Sarigul Guillaume Papalia
 
 ## Technologies
 
