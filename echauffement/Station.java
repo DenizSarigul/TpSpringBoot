@@ -1,0 +1,1 @@
+public record Station(Long id, String nom, String ville, StatutStation statut) {}
