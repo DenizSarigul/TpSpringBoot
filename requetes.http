@@ -1,0 +1,46 @@
+### Stations
+GET http://localhost:8080/api/stations
+###
+GET http://localhost:8080/api/stations/1
+###
+GET http://localhost:8080/api/stations/999
+###
+POST http://localhost:8080/api/stations
+Content-Type: application/json
+
+{ "nom": "Station Nice", "ville": "Nice", "altitude": 10, "statut": "ACTIVE" }
+###
+POST http://localhost:8080/api/stations
+Content-Type: application/json
+
+{ "nom": "", "ville": "Nice" }
+###
+GET http://localhost:8080/api/stations/par-statut?statut=CASSEE
+
+### Mesures
+GET http://localhost:8080/api/stations/1/mesures
+###
+POST http://localhost:8080/api/stations/1/mesures
+Content-Type: application/json
+
+{ "dateHeure": "2026-11-27T10:00:00", "temperature": 14.2, "humidite": 61.0 }
+###
+POST http://localhost:8080/api/stations/1/mesures
+Content-Type: application/json
+
+{ "dateHeure": "2026-11-27T11:00:00", "temperature": 300, "humidite": 150 }
+###
+POST http://localhost:8080/api/stations/3/mesures
+Content-Type: application/json
+
+{ "dateHeure": "2026-11-27T10:00:00", "temperature": 10.0, "humidite": 50.0 }
+
+### Anomalies et nettoyage
+GET http://localhost:8080/api/mesures/anomalies
+###
+DELETE http://localhost:8080/api/mesures/anomalies
+
+### Statistiques
+GET http://localhost:8080/api/stations/1/stats
+###
+GET http://localhost:8080/api/stations/2/stats

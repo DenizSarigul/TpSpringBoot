@@ -1,8 +1,13 @@
 package fr.epsi.meteodata.controller;
 
+import fr.epsi.meteodata.dto.StationMapper;
+import fr.epsi.meteodata.dto.StationRequest;
+import fr.epsi.meteodata.dto.StationResponse;
+import fr.epsi.meteodata.exception.RessourceIntrouvableException;
 import fr.epsi.meteodata.model.Station;
 import fr.epsi.meteodata.model.StatutStation;
 import fr.epsi.meteodata.service.StationService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,44 +24,50 @@ public class StationController {
         this.service = service;
     }
 
-    @GetMapping
-    public List<Station> lister() { return service.lister(); }
-
-    // GET /api/stations/recherche?ville=Lyon
-    @GetMapping("/recherche")
-    public List<Station> recherche(@RequestParam String ville) {
-        return service.parVille(ville);
+    private RessourceIntrouvableException introuvable(Long id) {
+        return new RessourceIntrouvableException("Station " + id + " introuvable");
     }
 
-    // GET /api/stations/par-statut?statut=ACTIVE
+    @GetMapping
+    public List<StationResponse> lister() {
+        return service.lister().stream().map(StationMapper::toResponse).toList();
+    }
+
+    @GetMapping("/recherche")
+    public List<StationResponse> recherche(@RequestParam String ville) {
+        return service.parVille(ville).stream().map(StationMapper::toResponse).toList();
+    }
+
     @GetMapping("/par-statut")
-    public List<Station> parStatut(@RequestParam StatutStation statut) {
-        return service.parStatut(statut);
+    public List<StationResponse> parStatut(@RequestParam StatutStation statut) {
+        return service.parStatut(statut).stream().map(StationMapper::toResponse).toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Station> lire(@PathVariable Long id) {
+    public StationResponse lire(@PathVariable Long id) {
         return service.trouver(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .map(StationMapper::toResponse)
+                .orElseThrow(() -> introuvable(id));
     }
 
     @PostMapping
-    public ResponseEntity<Station> creer(@RequestBody Station s) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.enregistrer(s));
+    public ResponseEntity<StationResponse> creer(@Valid @RequestBody StationRequest r) {
+        Station creee = service.enregistrer(StationMapper.toEntity(r));
+        return ResponseEntity.status(HttpStatus.CREATED).body(StationMapper.toResponse(creee));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Station> modifier(@PathVariable Long id, @RequestBody Station s) {
-        return service.modifier(id, s)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public StationResponse modifier(@PathVariable Long id, @Valid @RequestBody StationRequest r) {
+        return service.modifier(id, StationMapper.toEntity(r))
+                .map(StationMapper::toResponse)
+                .orElseThrow(() -> introuvable(id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> supprimer(@PathVariable Long id) {
-        return service.supprimer(id)
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+        if (!service.supprimer(id)) {
+            throw introuvable(id);
+        }
+        return ResponseEntity.noContent().build();
     }
 }
